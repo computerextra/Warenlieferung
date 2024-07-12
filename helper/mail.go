@@ -79,6 +79,9 @@ func SendMail(neueArtikel []horst.NeuerArtikel, gelieferteArtikel []horst.NeuerA
 		body = fmt.Sprintf("%s</ul>", body)
 	}
 
+	body = fmt.Sprintf("%s<h2>Aktuelle Lagerwerte</h2><p><b>Lagerwert Verfügbare Artikel:</b> %.2f €</p><p><b>Lagerwert alle lagernde Artikel:</b> %.2f €</p>", body, wertVerfügbar, wertBestand)
+	body = fmt.Sprintf("%s<p>Wert in aktuellen Aufträgen: %.2f €", body, wertBestand-wertVerfügbar)
+
 	SN, err := sage.GetAlteSeriennummern()
 	if err != nil {
 		log.Fatal("SendMail: Fehler beim ermitteln von GetAlteSeriennummern!", err)
@@ -133,27 +136,27 @@ func SendMail(neueArtikel []horst.NeuerArtikel, gelieferteArtikel []horst.NeuerA
 		body = fmt.Sprintf("%s</tbody></table>", body)
 	}
 
-	body = fmt.Sprintf("%s<h2>Aktuelle Lagerwerte</h2><p><b>Lagerwert Verfügbare Artikel:</b> %.2f €</p><p><b>Lagerwert alle lagernde Artikel:</b> %.2f €</p>", body, wertVerfügbar, wertBestand)
-	body = fmt.Sprintf("%s<p>Wert in aktuellen Aufträgen: %.2f €", body, wertBestand-wertVerfügbar)
+	if len(teureArtikel) > 0 {
+		body = fmt.Sprintf("%s<h2>Top 10: Die teuersten Artikel inkl. aktive Aufträge</h2><table><thead><tr><th>Artikelnummer</th><th>Name</th><th>Bestand</th><th>Einzelpreis</th><th>Summe</th></tr></thead><tbody>", body)
 
-	if len(teureArtikel) > 0 && len(teureVerfArtikel) > 0 {
-		body = fmt.Sprintf("%s<h2>Top 10: Die teuersten Artikel inkl. aktive Aufträge / Die teuersten Artikel exkl. aktive Aufträge</h2>", body)
-		body = fmt.Sprintf("%s<table><tr><td><ul>", body)
 		for i := range teureArtikel {
-			body = fmt.Sprintf("%s<li>Artikelnummer: %s, Bestand: %d, Einzelpreis: %.2f €, Summe: %.2f €<br>%s</li>", body, teureArtikel[i].Artikelnummer, teureArtikel[i].Bestand, teureArtikel[i].EK, teureArtikel[i].Summe, teureArtikel[i].Artikelname)
+			body = fmt.Sprintf("%s<tr><td>%s</td><td>%s</td><td>%d</td><td>%.2f €</td><td>%.2f €</td></tr>", body, teureArtikel[i].Artikelnummer, teureArtikel[i].Artikelname, teureArtikel[i].Bestand, teureArtikel[i].EK, teureArtikel[i].Summe)
 		}
-		body = fmt.Sprintf("%s</ul></td>", body)
-		body = fmt.Sprintf("%s<td><ul>", body)
+		body = fmt.Sprintf("%s</tbody></table>", body)
+	}
+
+	if len(teureVerfArtikel) > 0 {
+		body = fmt.Sprintf("%s<h2>Top 10: Die teuersten Artikel exkl. aktive Aufträge</h2><table><thead><tr><th>Artikelnummer</th><th>Name</th><th>Bestand</th><th>Einzelpreis</th><th>Summe</th></tr></thead><tbody>", body)
 
 		for i := range teureVerfArtikel {
-			body = fmt.Sprintf("%s<li>Artikelnummer: %s, Bestand: %d, Verfügbar: %d, Einzelpreis: %.2f €, Summe: %.2f €<br>%s</li>", body, teureVerfArtikel[i].Artikelnummer, teureVerfArtikel[i].Bestand, teureVerfArtikel[i].Verfügbar, teureVerfArtikel[i].EK, teureVerfArtikel[i].Summe, teureVerfArtikel[i].Artikelname)
-		}
+			body = fmt.Sprintf("%s<tr><td>%s</td><td>%s</td><td>%d</td><td>%.2f €</td><td>%.2f €</td></tr>", body, teureVerfArtikel[i].Artikelnummer, teureVerfArtikel[i].Artikelname, teureVerfArtikel[i].Bestand, teureVerfArtikel[i].EK, teureVerfArtikel[i].Summe)
 
-		body = fmt.Sprintf("%s</ul></td></table>", body)
+		}
+		body = fmt.Sprintf("%s</tbody></table>", body)
 	}
 
 	if len(leichen) > 0 {
-		body = fmt.Sprintf("%s<h2>Top 20: Leichen bei CE</h2><ul>", body)
+		body = fmt.Sprintf("%s<h2>Top 20: Leichen bei CE</h2><table><thead><tr><th>Artikelnummer</th><th>Name</th><th>Bestand</th><th>Verfügbar</th><th>Letzter Umsatz:</th><th>Wert im Lager:</th></tr></thead><tbody>", body)
 		for i := range leichen {
 			summe := float64(leichen[i].Verfügbar) * leichen[i].EK
 			var LetzterUmsatz string
@@ -167,9 +170,9 @@ func SendMail(neueArtikel []horst.NeuerArtikel, gelieferteArtikel []horst.NeuerA
 			verf := leichen[i].Verfügbar
 			artNr := leichen[i].Artikelnummer
 			name := leichen[i].Artikelname
-			body = fmt.Sprintf("%s<li><b>%s</b>: %s <br>Bestand: %d<br>Verfügbar: %d<br>Letzter Umsatz: %s<br>Wert im Lager: %.2f€</li>", body, artNr, name, bestand, verf, LetzterUmsatz, summe)
+			body = fmt.Sprintf("%s<tr><td>%s</td><td>%s</td><td>%d</td><td>%d</td><td>%s</td><td>%.2f€</td></tr>", body, artNr, name, bestand, verf, LetzterUmsatz, summe)
 		}
-		body = fmt.Sprintf("%s</ul>", body)
+		body = fmt.Sprintf("%s</tbody></table>", body)
 	}
 
 	m := mail.NewMessage()
