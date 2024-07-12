@@ -1,0 +1,2 @@
+- [ ] Preisänderungen sollten bei neuen Artikeln nicht angezeigt werden!
+- [ ] Neue Artikel sollten nicht bei "Wieder geliefert" auftauchen
