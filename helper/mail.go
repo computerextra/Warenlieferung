@@ -96,7 +96,7 @@ func SendMail(neueArtikel []horst.NeuerArtikel, gelieferteArtikel []horst.NeuerA
 
 		body = fmt.Sprintf("%s<p>Erklärungen der Farben:</p>", body)
 		body = fmt.Sprintf("%s<p><span style='background-color: \"#f45865\"'>ROT:</span> Artikel ist bereits seit mehr als 2 Jahren lagernd und sollte schnellstens Verkauft werden!</p>", body)
-		body = fmt.Sprintf("%s<p><span style='background-color: \"#a3a53a\"'>GELB:</span> Artikel ist bereits seit mehr als 1 Jahr lagernd!</p>", body)
+		body = fmt.Sprintf("%s<p><span style='background-color: \"#fff200\"'>Gelb:</span> Artikel ist bereits seit mehr als 1 Jahr lagernd!</p>", body)
 
 		body = fmt.Sprintf("%s<table><thead>", body)
 		body = fmt.Sprintf("%s<tr>", body)
@@ -121,7 +121,7 @@ func SendMail(neueArtikel []horst.NeuerArtikel, gelieferteArtikel []horst.NeuerA
 			if diff >= 2 {
 				body = fmt.Sprintf("%s<tr style='background-color: \"#f45865\"'>", body)
 			} else if diff >= 1 {
-				body = fmt.Sprintf("%s<tr style='background-color: \"#a3a53a\"'>", body)
+				body = fmt.Sprintf("%s<tr style='background-color: \"#fff200\"'>", body)
 			} else {
 				body = fmt.Sprintf("%s<tr>", body)
 			}
