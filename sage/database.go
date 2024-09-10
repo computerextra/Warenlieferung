@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"slices"
 	"strconv"
 
 	_ "github.com/denisenkom/go-mssqldb"
@@ -439,7 +440,9 @@ func GetAlteSeriennummern() ([]AlteSeriennummer, error) {
 			art.Bestand = int(Bestand.Int16)
 			art.Verfügbar = int(Verfügbar.Int16)
 			art.GeBeginn = Garantie.String
-			artikel = append(artikel, art)
+			if !slices.Contains(artikel, art) {
+				artikel = append(artikel, art)
+			}
 		}
 	}
 	if err := rows.Err(); err != nil {
